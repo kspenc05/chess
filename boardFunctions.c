@@ -126,61 +126,29 @@ int randomized_negation(int val)
     return (rand() % 2 == 0) ? val * -1 : val;
 }
 
-//PURPOSE:: picks a number between 0 - 7, which is not the number given
+void swap(int * b, int * c)
+{
+    int a = *b;
+    *b = *c; 
+    *c = a;
+}
+
+//PURPOSE:: picks a number between 0 - 7, which is not the number given. Swaps
+//the number in an array of numbers between 0-7, so that it is not used in 
+//generation.
 //ARGUMENTS:: a number between 0 - 7.
-//RETURNS:: a random number between 0 -7 which is not the current number.
+//RETURNS:: a different number between 0 - 7.
 int diff_num_btwn_0_and_7(int number)
 {
-    switch(number)
-    {
-        case 0:
-        {
-            int values [7] = {1, 2, 3, 4, 5, 6, 7};
-            return values[rand() % 7];
-        }
-        case 1:
-        {
-            int values [7] = {0, 2, 3, 4, 5, 6, 7};
-            return values[rand() % 7];
-        }
-        case 2:
-        {
-            int values [7] = {0, 1, 3, 4, 5, 6, 7};
-            return values[rand() % 7];
-        }
-        case 3:
-        {
-            int values [7] = {0, 1, 2, 4, 5, 6, 7};
-            return values[rand() % 7];
-        }
-        case 4:
-        {
-            int values [7] = {0, 1, 2, 3, 5, 6, 7};
-            return values[rand() % 7];
-        }
-        case 5:
-        {
-            int values [7] = {0, 1, 2, 3, 4, 6, 7};
-            return values[rand() % 7];
-        }
-        case 6:
-        {
-            int values [7] = {0, 1, 2, 3, 4, 5, 7};
-            return values[rand() % 7];
-        }
-        default:
-        {
-            int values [7] = {0, 1, 2, 3, 4, 5, 6};
-            return values[rand() % 7];
-        }
-    }
+    int values [9] = {0,1,2,3,4,5,6,7,8};
+    swap(&values[number], &values[8]);
+    return values[rand() % 7];
 }
 
 void random_bishop_move(int X, int Y, int * X2, int * Y2)
 {
     *X2 = diff_num_btwn_0_and_7(X);
     *Y2 = Y + randomized_negation(*X2 - X);
-    
 }
 
 void random_rook_move(int X, int Y, int * X2, int * Y2)
@@ -192,16 +160,14 @@ void random_rook_move(int X, int Y, int * X2, int * Y2)
 void computer_move(int * Y1, int * Y2, int * X1, int * X2, 
     char board [8] [9], Player * player, Player * opposing)
 {
-    int pos;
-    
     do{
-        pos = rand() % NUM_PIECES;
+        int pos = rand() % NUM_PIECES;
     
         *Y1 = player->all[pos].Y;
         *X1 = player->all[pos].X;
     } while(*X1 == -1);
     
-   // printf("char is %c\n\n", board [*Y1][*X1]);
+    //printf("char is %c\n\n", board [*Y1][*X1]);
     
     if(board [*Y1] [*X1] == 'P') //for a pawn move
     {
