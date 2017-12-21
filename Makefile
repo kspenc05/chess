@@ -1,11 +1,14 @@
 FLAGS = -Wall -pedantic -std=c99 -g
 
-all: move.o check.o board.o player.o direc.o draw.o
+all: move.o check.o board.o player.o direc.o draw.o rand.o
 	gcc $(FLAGS) \
-	    player.o move.o board.o check.o direc.o draw.o chess.c -o chess
+	     rand.o player.o move.o board.o check.o direc.o draw.o chess.c -o chess
 
 board.o: player.o
 	gcc -c $(FLAGS) boardFunctions.c -o board.o
+
+rand.o: player.o
+	gcc -c $(FLAGS) rand.c -o rand.o
 
 check.o: player.o
 	gcc -c $(FLAGS) check.c
