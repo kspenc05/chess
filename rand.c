@@ -56,12 +56,8 @@ int convertToChar(int X)
 void computer_move(int * Y1, int * Y2, int * X1, int * X2, 
     char board [8] [9], Player * player)
 {
+    do get_XandY(player->all[rand() % NUM_PIECES], X1, Y1); while(*X1 == -1);
     
-    do
-    {
-        Piece piece = player->all[rand() % NUM_PIECES - 1];
-        get_XandY(piece, X1, Y1);
-    }while(*X1 == -1);
     //printf("X: %d  Y: %d\n", *X1, *Y1);
     
     switch(board [*Y1] [*X1])
@@ -69,9 +65,7 @@ void computer_move(int * Y1, int * Y2, int * X1, int * X2,
         case 'P': //for a pawn move
         {
             int dir = (player->num == 1) ? 1 : -1;
-            *Y2 = *Y1 + ((1 + Bool()) * dir);
-        
-            //if the next Y position is 2 in either direction, keep X difference at 0
+            *Y2 = *Y1 + (1 + Bool()) * dir;
             
             *X2 = (Bool()) ? *X1 + pos_or_neg(1) : *X1;
             break;
