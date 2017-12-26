@@ -1,38 +1,38 @@
 #include "check.h"
 
-int CheckMate (char board [8] [9], Player * player, Player * opposing, Piece King)
+int CheckMate (char B [8] [9], Player * P1, Player * P2, Piece King)
 {
-    if(player->numDir == 1) //if there is more than one attackable direction, cannot be blocked
+    if(P1->numDir == 1) //if there is more than one attackable direction, cannot be blocked
     {
-        int incr1, incr2, dir = getDir(player->Danger);
+        int incr1, incr2, dir = getDir(P1->Danger);
         int i = King.Y, j = King.X; 
         char other_danger;
         
-        setIncr_XandY(&dir, &incr1, &incr2, player->num);
+        setIncr_XandY(&dir, &incr1, &incr2, P1->num);
         other_danger = setDanger(&dir);
         
-        while(board [i] [j] != 'Q' && 
-            board [i] [j] != other_danger)
+        while(B [i] [j] != 'Q' && 
+            B [i] [j] != other_danger)
         {
             i = i + incr1;
             j = j + incr2;
             
             Piece targetSQ = {j, i, 0};
-            if(isInDanger(targetSQ, board, player, opposing) == 1)
+            if(isInDanger(targetSQ, B, P1, P2) == 1)
             {
                 return check;
             }
         } 
     }
-    else if(player->numDir == 0) //if no directions being attacked from
+    else if(P1->numDir == 0) //if no directions being attacked from
     {
         for(int i = 0; i < NUM_PIECES; i++)
         {
-            if(opposing->all[i].X != -1 &&
-                board [opposing->all[i].Y] [opposing->all[i].X] == 'N' &&
-                isInDanger(opposing->all[i], board, player, opposing) == 1)
+            if(P2->all[i].X != -1 &&
+                B [P2->all[i].Y] [P2->all[i].X] == 'N' &&
+                isInDanger(P2->all[i], B, P1, P2) == 1)
             {
-                int coords[4] = {opposing->all[i].X, opposing->all[i].Y,
+                int coords[4] = {P2->all[i].X, P2->all[i].Y,
                     King.X, King.Y};
                     
                 if(valid_Knight_move(coords) == move_true)
@@ -65,10 +65,10 @@ void set_aroundKing(Piece King, Piece aroundKing [num_direcns])
     set_Piece(&aroundKing[k++], King.X - 1, King.Y + 1, 0);
 }
 
-int kings_are_2_close (Player * player, Player * opposing, char board [8] [9])
+int kings_are_2_close (Player * P1, Player * P2, char B [8] [9])
 {
-    Piece * myKing = findKing(player, board);
-    Piece * theirKing = findKing(opposing, board);
+    Piece * myKing = findKing(P1, B);
+    Piece * theirKing = findKing(P2, B);
     
     int diffX = myKing->X - theirKing->X;
     int diffY = myKing->Y - theirKing->Y; 
@@ -77,15 +77,15 @@ int kings_are_2_close (Player * player, Player * opposing, char board [8] [9])
              (diffX == 0 || diffX == -1 || diffX == 1) ) ? 1 : 0;
 }
 
-int can_KingMove (Piece aroundKing[num_direcns], char board [8] [9],
-    Player * player, Player * opposing)
+int can_KingMove (Piece aroundKing[num_direcns], char B [8] [9],
+    Player * P1, Player * P2)
 {
     for(int i = 0; i < num_direcns; i++)
     {
         if(withinBounds(aroundKing[i].X) == 0 &&
             withinBounds(aroundKing[i].Y) == 0 &&
-            friendlyFire(aroundKing[i].X, aroundKing[i].Y, player, 0) == 0 &&
-            isInDanger(aroundKing[i], board, opposing, player) == 0) 
+            friendlyFire(aroundKing[i].X, aroundKing[i].Y, P1, 0) == 0 &&
+            isInDanger(aroundKing[i], B, P2, P1) == 0) 
         {
             return 1;
         }
@@ -96,7 +96,7 @@ int can_KingMove (Piece aroundKing[num_direcns], char board [8] [9],
 //PURPOSE:: counts the number of pieces for the player
 //ARGUMENTS:: board and player variables
 //RETURNS:: 1 if sufficient pieces for checkmate, otherwise 0.
-int count_pieces (char board [8] [9], Player * player)
+int count_pieces (char B [8] [9], Player * P1)
 {
     int pawns = 0;
     int queens = 0;
@@ -106,11 +106,11 @@ int count_pieces (char board [8] [9], Player * player)
     
     for(int i = 0; i < NUM_PIECES; i++)
     {
-        Piece target = player->all[i];
+        Piece target = P1->all[i];
         
-        if(player->all[i].Y != -1)
+        if(P1->all[i].Y != -1)
         {
-            switch (board [target.Y] [target.X])
+            switch (B [target.Y] [target.X])
             {
                 case 'P': pawns++; break;
                 case 'R': rooks++; break;
@@ -131,10 +131,9 @@ int count_pieces (char board [8] [9], Player * player)
 //ARGUMENTS:: the board and both player variables.
 //RETURNS:: 1 if there is sufficient pieces for either player to achieve
 //checkmate, otherwise 0.
-int Enough_pieces(char board [8] [9], Player * player, Player * opposing)
+int Enough_pieces(char B [8] [9], Player * P1, Player * P2)
 {
-    return (count_pieces(board, player) || 
-        count_pieces(board, opposing) ) ? 1 : 0;
+    return (count_pieces(B, P1) || count_pieces(B, P2) ) ? 1 : 0;
 }
 
 //PURPOSE:: sets the pieces to check possible moves for stalemate
@@ -173,8 +172,6 @@ int set_move_able (char piece, Piece * move_able, Piece * target)
 
             set_Piece(&move_able[k++], target->X, target->Y + 1, 0);
             set_Piece(&move_able[k++], target->X, target->Y - 1, 0);
-            k = 4;
-            
             break;
         }
         case 'B':
@@ -185,7 +182,6 @@ int set_move_able (char piece, Piece * move_able, Piece * target)
             
             set_Piece(&move_able[k++], target->X + 1, target->Y - 1, 0);
             set_Piece(&move_able[k++], target->X - 1, target->Y + 1, 0);
-            k = 4;
             break;
         }
         case 'Q':
@@ -215,17 +211,17 @@ int set_move_able (char piece, Piece * move_able, Piece * target)
     return k;
 }
 
-int Stalemate(char board [8] [9], Player * player, Player * opposing)
+int Stalemate(char B [8] [9], Player * P1, Player * P2)
 {
     int num_moves, coords[4];
     Piece move_able [8], target;
     
     for(int i = 0; i < NUM_PIECES; i++)
     {
-        target = player->all[i];
+        target = P1->all[i];
         get_XandY(target, &coords[0], &coords[1]);
         
-        num_moves = set_move_able(board [target.Y] [target.X], 
+        num_moves = set_move_able(B [target.Y] [target.X], 
             move_able, &target);
         
         for(int j = 0; j < num_moves; j++)
@@ -234,8 +230,8 @@ int Stalemate(char board [8] [9], Player * player, Player * opposing)
             
             //to check if any possible square can attack the king
             if(checkArrayBounds(coords, 0) == move_true &&
-                friendlyFire(coords[2], coords[3], player, 0) == move_true &&
-                isValidMove(board, coords, player, opposing, 0) == move_true)
+                friendlyFire(coords[2], coords[3], P1, 0) == move_true &&
+                isValidMove(B, coords, P1, P2, 0) == move_true)
             {
                 return king_is_safe;
             }

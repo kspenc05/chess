@@ -116,7 +116,7 @@ void computer_move(int * Y1, int * Y2, int * X1, int * X2,
     *X1 = convertToChar(*X1);
     *X2 = convertToChar(*X2);
     
-    /*
+    
     printf("from %c%d to %c%d\n", *X1, *Y1, *X2, *Y2);
     
     const clock_t start = clock();
@@ -124,7 +124,6 @@ void computer_move(int * Y1, int * Y2, int * X1, int * X2,
     clock_t current;
     do{
         current = clock();
-
     }while((double)(current-start)/CLOCKS_PER_SEC < 2);
-    */
+    
 }

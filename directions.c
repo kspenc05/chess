@@ -20,16 +20,16 @@ char setDanger(int * mode)
 //
 //returns 1 if there is danger, otherwise 0.
 //
-int markIfDanger (char piece, int X, int Y, Player * player,
+int markIfDanger (char piece, int X, int Y, Player * P1,
     int * numPieces, char dangerPiece)
 {
     if(piece == 'Q'|| 
         piece == dangerPiece)
     {
-        if(findPiece(player, X, Y) == NULL && //if it's not player's piece
+        if(findPiece(P1, X, Y) == NULL && //if it's not player's piece
             *numPieces == 0)
         {    
-            player->numDir++;
+            P1->numDir++;
             return 1;
         }
     }
@@ -40,12 +40,12 @@ int markIfDanger (char piece, int X, int Y, Player * player,
     return 0;
 }
 
-void findCheckDirns(int mode, Piece King, char board [8] [9], Player * player)
+void findCheckDirns(int mode, Piece King, char board [8] [9], Player * P1)
 {
     int numPieces = 0, i, j, incr1, incr2, end1, end2;
     
     char danger = setDanger(&mode);
-    setIncr_XandY(&mode, &incr1, &incr2, player->num);
+    setIncr_XandY(&mode, &incr1, &incr2, P1->num);
     
     end1 = get_endCond(&incr1);
     end2 = get_endCond(&incr2);
@@ -55,7 +55,7 @@ void findCheckDirns(int mode, Piece King, char board [8] [9], Player * player)
     j = King.X;
 
     while(i != end1 && j != end2 && 
-        player->Danger[mode] == 0 && numPieces == 0)
+        P1->Danger[mode] == 0 && numPieces == 0)
     {
         j = j + incr2;
         i = i + incr1;
@@ -65,8 +65,8 @@ void findCheckDirns(int mode, Piece King, char board [8] [9], Player * player)
 
         //if it equals 1, will set it to 1, otherwise, 
             //it does nothing, will set to 0 again
-        player->Danger[mode] = markIfDanger(board [i] [j], j, i, 
-                                   player, &numPieces, danger);
+        P1->Danger[mode] = markIfDanger(board [i] [j], j, i, 
+                                   P1, &numPieces, danger);
     }
 }
 

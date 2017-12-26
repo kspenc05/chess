@@ -55,7 +55,7 @@ void printLetters(int direction)
 
 //PURPOSE:: prints out all board locations and number co-ordinates for user
 //ARGUMENTS:: the char array for the board, and the direction to print it
-void printPieces(char board [8] [9], Player * player, Player * opposing,
+void printPieces(char board [8] [9], Player * P1, Player * P2,
     int direction)
 {
     int condition, i, incr;
@@ -72,11 +72,11 @@ void printPieces(char board [8] [9], Player * player, Player * opposing,
                 printf(Yellow "%d", i + 1);
                 printf(White " ||| " Yellow);
             }
-            if(findPiece(player, j, i) != NULL)
+            if(findPiece(P1, j, i) != NULL)
             {
                 printf(Cyan " %c  " Yellow, board[i][j]);
             }
-            else if(findPiece(opposing, j, i) != NULL)
+            else if(findPiece(P2, j, i) != NULL)
             {
                 printf(Green " %c  " Yellow, board[i][j]);
             }
@@ -109,14 +109,13 @@ void printHorizontalBorder()
     printf("  \n");
 }
 
-void printBoard(char board [8] [9], Player * player, Player * opposing,
-    int direction)
+void printBoard(char board [8] [9], Player * P1, Player * P2, int direction)
 {
     printf(Background_black);
     printLetters(direction);
     printHorizontalBorder();
     
-    printPieces(board, player, opposing, direction);
+    printPieces(board, P1, P2, direction);
     
     printHorizontalBorder();
     printLetters(direction);

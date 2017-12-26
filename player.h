@@ -51,7 +51,7 @@ Piece * findPiece(Player * player, int X, int Y);
 
 //ARGUMENTS:: the board and the coordinates of the piece
 //RETURNS:: returns what the character on the board is
-char piece_type(char board [8] [9], int X, int pos);
+char type(char board [8] [9], int X, int pos);
 
 //PURPOSE:: removes a piece from the other player's Piece array
 //

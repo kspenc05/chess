@@ -22,8 +22,8 @@
 //
 //RETURNS:: move_true if the move is a legal chess move, otherwise move_false.
 //
-int isValidMove(char board [8] [9], int coords [4], Player * player, 
-    Player * opposing, int messages);
+int isValidMove(char board [8] [9], int coords [4], Player * P1, 
+    Player * P2, int messages);
 
 //PURPOSE:: gets user input for a move, and checks if it is legal or not
 //
@@ -33,7 +33,7 @@ int isValidMove(char board [8] [9], int coords [4], Player * player,
 //RETURNS:: returns 0 (move_true) if valid, else 1 (move_false)
 //
 int validateInput (int * Y1, int * Y2, int * X1, int * X2, 
-    char board [8] [9], Player * player, Player * opposing, int messages);
+    char board [8] [9], Player * P1, Player * P2, int messages);
 
 //PURPOSE:: checks if any number can fit within the board's boundaries (between 
 //0 and 7).
@@ -52,7 +52,7 @@ int withinBounds(int number);
 //RETURNS:: 1 if piece could be attacked, else 0
 //
 int isInDanger(Piece target, char board [8] [9], 
-    Player * opposing, Player * player);
+    Player * P2, Player * P1);
 
 //PURPOSE:: checks if piece is attacking a friendly piece on the board
 //
@@ -61,7 +61,7 @@ int isInDanger(Piece target, char board [8] [9],
 //
 //RETURNS:: 1 if true, else 0
 //
-int friendlyFire(int next_X, int next_Y, Player * player, int messages);
+int friendlyFire(int next_X, int next_Y, Player * P1, int messages);
 
 //PURPOSE:: checks if knight move is valid
 //

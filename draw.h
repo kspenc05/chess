@@ -10,7 +10,6 @@
 
 void title();
 
-void printBoard(char board [8] [9], Player * player, Player * opposing,
-    int direction);
+void printBoard(char B [8] [9], Player * P1, Player * P2, int direction);
 
 #endif

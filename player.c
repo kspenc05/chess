@@ -26,7 +26,7 @@ Piece * findPiece(Player * player, int X, int Y)
     return NULL;
 }
 
-int charAtIs(char board [8] [9], int X, int Y, char type)
+int match(char board [8] [9], int X, int Y, char type)
 {
     return (board [Y] [X] == type) ? 1 : 0;
 }
