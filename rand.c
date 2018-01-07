@@ -54,9 +54,9 @@ int convertToChar(int X)
 }
 
 void computer_move(int * Y1, int * Y2, int * X1, int * X2, 
-    char board [8] [9], Player * player)
+    char board [8] [9], Player * current)
 {
-    do get_XandY(player->all[rand() % NUM_PIECES], X1, Y1); while(*X1 == -1);
+    do get_XandY(current->all[rand() % NUM_PIECES], X1, Y1); while(*X1 == -1);
     
     //printf("X: %d  Y: %d\n", *X1, *Y1);
     
@@ -64,7 +64,7 @@ void computer_move(int * Y1, int * Y2, int * X1, int * X2,
     {
         case 'P': //for a pawn move
         {
-            int dir = (player->num == 1) ? 1 : -1;
+            int dir = (current->num == 1) ? 1 : -1;
             *Y2 = *Y1 + (1 + Bool()) * dir;
             
             *X2 = (Bool()) ? *X1 + pos_or_neg(1) : *X1;
@@ -106,10 +106,10 @@ void computer_move(int * Y1, int * Y2, int * X1, int * X2,
     }
     //printf("who am I?\n\n");
     
-    //printf("I moved my '%c' ", board [*Y1][*X1]);
+    //printf("I moved my '%c' ", B [*Y1][*X1]);
     
     //printf("piece : %c SRC: X:%d Y:%d DEST: X:%d Y:%d\n",
-    //    board [*Y1] [*X1], *X1, *Y1, *X2, *Y2);
+    //    B [*Y1] [*X1], *X1, *Y1, *X2, *Y2);
     
     (*Y1)++;
     (*Y2)++;
@@ -117,13 +117,11 @@ void computer_move(int * Y1, int * Y2, int * X1, int * X2,
     *X2 = convertToChar(*X2);
     
     
-    printf("from %c%d to %c%d\n", *X1, *Y1, *X2, *Y2);
-    
     const clock_t start = clock();
 
-    clock_t current;
+    clock_t current_time;
     do{
-        current = clock();
-    }while((double)(current-start)/CLOCKS_PER_SEC < 2);
+        current_time = clock();
+    }while((double)(current_time-start)/CLOCKS_PER_SEC < 1);
     
 }

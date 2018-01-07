@@ -41,21 +41,16 @@ void printThisChar(char print, int times)
         printf(White "%c", print);
 }
 
-//PURPOSE:: prints letter co-ordinates for the user to know regarding position
-//ARGUMENTS:: current loop condition, loop counter, and direction.
-void printLetters(int direction)
+//PURPOSE:: prints letter co-ordinates of the board
+void printLetters()
 {
-    printThisChar(' ', 7);
-    for(int i = 0; i < 8; i++)
-    {
-        printf(Yellow "%c   ", "ABCDEFGH"[i]);
-    }
-    printf("    \n");
+    printThisChar(' ', 8);
+    printf(Yellow "A   B   C   D   E   F   G   H   I    \n");
 }
 
-//PURPOSE:: prints out all board locations and number co-ordinates for user
+//PURPOSE:: prints out all B locations and number co-ordinates for user
 //ARGUMENTS:: the char array for the board, and the direction to print it
-void printPieces(char board [8] [9], Player * P1, Player * P2,
+void printPieces(char board [8] [9], Player * current, Player * enemy,
     int direction)
 {
     int condition, i, incr;
@@ -69,33 +64,33 @@ void printPieces(char board [8] [9], Player * P1, Player * P2,
         {
             if(j == 0)
             {
-                printf(Yellow "%d", i + 1);
-                printf(White " ||| " Yellow);
+                printf(Yellow " %d" White " ||| " Yellow, i + 1);
             }
-            if(findPiece(P1, j, i) != NULL)
+            if(findPiece(current, j, i) != NULL)
             {
-                printf(Cyan " %c  " Yellow, board[i][j]);
+                printf(Cyan);
             }
-            else if(findPiece(P2, j, i) != NULL)
+            else if(findPiece(enemy, j, i) != NULL)
             {
-                printf(Green " %c  " Yellow, board[i][j]);
+                printf(Green); 
             }
             else
-                printf(Yellow " %c  ", board[i][j]);
+                printf(Yellow);
+                
+            printf(" %c  " Yellow, board[i][j]);
             
             if(j == 7)
             {
-                printf(White "||| ");
-                printf(Yellow "%d\n", i + 1);
+                printf(White "||| " Yellow "%d \n", i + 1);
             }
         }
         
         //NOTE:: added so it would stop printing 1 wall too long on both sides
         if(i != condition - 1 && i != condition + 1)
         {
-            printf(White "  |||");
+            printf(White "   |||");
             printThisChar(' ', B_width - 6); 
-            printf(White "|||  \n" Yellow);
+            printf(White "|||   \n" Yellow);
         }
     }  
 }
@@ -104,20 +99,21 @@ void printPieces(char board [8] [9], Player * P1, Player * P2,
 //ARGUMENTS:: none
 void printHorizontalBorder()
 {
-    printf("  ");
+    printf("   ");
     printThisChar('%', B_width);
-    printf("  \n");
+    printf("   \n");
 }
 
-void printBoard(char board [8] [9], Player * P1, Player * P2, int direction)
+void printBoard(char board [8] [9], Player * current, Player * enemy, int direction)
 {
     printf(Background_black);
-    printLetters(direction);
+    printf("\n");
+    printLetters();
     printHorizontalBorder();
     
-    printPieces(board, P1, P2, direction);
+    printPieces(board, current, enemy, direction);
     
     printHorizontalBorder();
-    printLetters(direction);
+    printLetters();
     printf("\n");
 }

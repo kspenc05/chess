@@ -10,7 +10,7 @@
 void chess(int AI)
 {
     char board [8][9];
-    int i = 0, j;
+    int i = 0, j, mode = AI;
 
     Player player [2];
     setBoard(board);
@@ -21,9 +21,13 @@ void chess(int AI)
     {
         printBoard(board, &player[0], &player[1], j);
         
+        if(mode == _1AI_)
+        {
+            AI = (j % 2 == 0) ? _noAI_ : _1AI_;
+        }
+        
         switch( Check(board, &player[j], &player[i]) )
         {
-            AI = j;    
             printf("%d]n\n", j);
             
             case check: 
@@ -52,17 +56,18 @@ int main()
     do
     {
         printf("Would you like to play? (enter the option number)\n"
-               "1. 2 player\n2. 1 player\n3. No\n");
+               "1. 2 player\n2. 1 player\n3. 2 computers\n4. No\n");
         fgets(buffer, 10, stdin);
     
         switch(buffer[0])
         {
             case '1': chess(_noAI_); break;
             case '2': chess(_1AI_); break;
-            case '3': return 0;
+            case '3': chess(_2AI_); break;
+            case '4': return 0;
         }
     }
-    while(buffer[0] == '1' || buffer[0] == '2');
+    while(buffer[0] == '1' || buffer[0] == '2' || buffer[0] == '3');
     
     return 0;
 }

@@ -11,15 +11,15 @@
 
 //PURPOSE:: puts all the pieces on the board
 //ARGUMENTS:: the board
-void setBoard(char B [8] [9]);
+void setBoard(char board [8] [9]);
 
 //PURPOSE:: moves any piece on the board
 //ARGUMENTS:: the board, the player being moved, and the other player's number 
 //of pieces.
-void Move(char B[8] [9], Player * P1, Player * P2, int get_input);
+void Move(char board[8] [9], Player * current, Player * enemy, int get_input);
 
 //PURPOSE:: see if the current player is in check or not
 //ARGUMENTS:: the board, and the two player variables
-int Check (char B [8] [9], Player * P1, Player * P2);
+int Check (char board [8] [9], Player * current, Player * enemy);
 
 #endif

@@ -39,15 +39,9 @@ int withinBounds(int number)
 // but also 2 and 1 are.
 // ARGUMENTS:: the two numbers to check
 //RETURNS:: 1 if the numbers have a difference of 1 or -1, 0 otherwise.
-int off_by_1(int a, int b)
+int off_by(int diff, int a, int b)
 {
-    return (a - b == 1 || a - b == -1) ? 1 : 0;
-}
-
-//PURPOSE:: same as above, except checking for a diff of 2
-int off_by_2(int a, int b)
-{
-    return (a - b == 2 || a - b == -2) ? 1 : 0;
+    return (a - b == diff || a - b == diff * -1) ? 1 : 0;
 }
 
 int checkArrayBounds(int coords[4], int messages)
@@ -70,9 +64,9 @@ int checkArrayBounds(int coords[4], int messages)
 //PURPOSE:: checks if a two-move pawn move is legal or not
 //
 //ARGUMENTS:: the player variable, and the int coordinate array 
-int valid_2Square_move(Player * P1, int coords [4], char type)
+int valid_2Square_move(Player * current, int coords [4], char type)
 {
-    Piece * piece = findPiece(P1, coords[0], coords[1]);
+    Piece * piece = findPiece(current, coords[0], coords[1]);
         
     return (piece != NULL && piece->moved == 0 && type == '_') ?
         move_true : move_false;
@@ -121,29 +115,29 @@ void Promotion(int player_num, int coords [4], char * promotedUnit)
 //and the opposing player variable.
 //
 //RETURNS:: move_true if legal, else move_false.
-int En_Passente(char B[8] [9], int coords[4], int player_num, 
-    Player * P2)
+int En_Passente(char board[8] [9], int coords[4], int player_num, 
+    Player * enemy)
 {
-    Piece pawn = P2->lastMove[1];
+    Piece pawn = enemy->lastMove[1];
     
     //checks if the last move one where there is a pawn and that the opposing 
     //player moved that pawn by 2 in either direction
-    if( off_by_2(pawn.Y, P2->lastMove[0].Y) == 1 &&
-        off_by_1(coords[0] + 1, pawn.X) == 1     &&
-        B[ pawn.Y ] [ pawn.X ] == 'P'          &&
+    if( off_by(2, pawn.Y, enemy->lastMove[0].Y) == 1 &&
+        off_by(1, coords[0] + 1, pawn.X) == 1     &&
+        board[ pawn.Y ] [ pawn.X ] == 'P'          &&
         coords[1] == pawn.Y)
     {
         if( ((coords[3] - 1 == pawn.Y && player_num == 1) ||
             (coords[3] + 1 == pawn.Y && player_num == 2)) &&
             coords[2] == pawn.X) 
         {
-            if(B[ coords[3] ] [ coords[2] ] == '_')
+            if(board[ coords[3] ] [ coords[2] ] == '_')
             {
-                Piece * piece = findPiece(P2, pawn.X, pawn.Y);
+                Piece * piece = findPiece(enemy, pawn.X, pawn.Y);
                 
                 if(piece != NULL)
                 {
-                    remove_piece(B, piece);
+                    remove_piece(board, piece);
                     return move_true;
                 }
             }
@@ -158,47 +152,46 @@ int En_Passente(char B[8] [9], int coords[4], int player_num,
 //
 //RETURNS:: 1 if invalid move, 0 if valid
 //
-int valid_Pawn_move(char B[8] [9], int coords[4], Player * P1, 
-    Player * P2)
+int valid_Pawn_move(char board[8] [9], int coords[4], Player * current, Player * enemy)
 {
     int status = move_false;
     
-    if(En_Passente(B, coords, P1->num, P2) == move_true)
+    if(En_Passente(board, coords, current->num, enemy) == move_true)
         return move_true;
     
     int diffY = coords[3] - coords[1];
     int diffX = coords[2] - coords[0];
     
     //check if it is a forward move, and then if 1 or 2 square move
-    if(B[ coords[3]] [ coords[2]] == '_' && diffX == 0)
+    if(board[ coords[3]] [ coords[2]] == '_' && diffX == 0)
     {
-        if(P1->num == 1)
+        if(current->num == 1)
         {
             switch(diffY)
             {
                 case 1: status = move_true; break;
-                case 2: status = valid_2Square_move(P1, coords, 
-                            B[ coords[3] - 1] [ coords[2]]); break;
+                case 2: status = valid_2Square_move(current, coords, 
+                    board[ coords[3] - 1] [ coords[2]]); break;
             }
         }
-        else if(P1->num == 2)
+        else if(current->num == 2)
         {
             switch(diffY)
             {
                 case -1: status = move_true; break;
-                case -2: status = valid_2Square_move(P1, coords,
-                            B[ coords[3] + 1] [ coords[2]]); break;
+                case -2: status = valid_2Square_move(current, coords,
+                            board[ coords[3] + 1] [ coords[2]]); break;
             }
         }
     }
     
     //check if diagonal move, 
     //attackable square cannot be a space
-    else if(B[coords[3]] [coords[2]] != '_' &&
+    else if(board[coords[3]] [coords[2]] != '_' &&
         (diffX == -1 || diffX == 1) )
     {
-        if( (diffY == 1 && P1->num == 1) ||
-            (diffY == -1 && P1->num == 2) )
+        if( (diffY == 1 && current->num == 1) ||
+            (diffY == -1 && current->num == 2) )
         {
             status = move_true;
         }
@@ -207,7 +200,7 @@ int valid_Pawn_move(char B[8] [9], int coords[4], Player * P1,
     //if the move was valid, does the pawn need to be promoted?
     if(status == move_true)
     {
-        Promotion(P1->num, coords, &B[ coords[1]] [ coords[0]] );
+        Promotion(current->num, coords, &board[ coords[1]] [ coords[0]] );
     }
     return status;
 }
@@ -240,7 +233,7 @@ void setLoopConds_Rook(int comp1, int comp2,
 //
 //RETURNS 1 if invalid, 0 if valid
 //
-int valid_Rook_move(char B[8] [9], int coords[4])
+int valid_Rook_move(char board[8] [9], int coords[4])
 {
     int incr, endCond, vertical, i;
     
@@ -262,10 +255,10 @@ int valid_Rook_move(char B[8] [9], int coords[4])
     //check each square to ensure there are no obstacles in the rook's way
     while( (i = i + incr) != endCond) 
     {
-        if(vertical == 0 && B[coords[1] ] [ i ] != '_')
+        if(vertical == 0 && board[coords[1] ] [ i ] != '_')
             return move_false;
             
-        else if(vertical == 1 && B[ i ] [ coords[0] ] != '_')
+        else if(vertical == 1 && board[ i ] [ coords[0] ] != '_')
             return move_false;
     }
     return move_true;
@@ -276,7 +269,7 @@ int valid_Rook_move(char B[8] [9], int coords[4])
 //ARGUMENTS:: board, and coordinate array
 //
 //RETURNS:: 1 if invalid, else 0 if valid move
-int valid_Bishop_move(char B[8] [9], int coords [4])
+int valid_Bishop_move(char board[8] [9], int coords [4])
 {
     int diffX = coords[0] - coords[2];
     int diffY = coords[1] - coords[3];
@@ -294,7 +287,7 @@ int valid_Bishop_move(char B[8] [9], int coords [4])
     //just checks X coord, because the X and Y are both incremented each time
     for(int i = coords[1] + incrI; i != coords[3]; i = i + incrI)
     {
-        if(B[i] [j] != '_')
+        if(board[i] [j] != '_')
         {
             return move_false;
         }
@@ -309,7 +302,7 @@ int valid_Bishop_move(char B[8] [9], int coords [4])
 //RETURNS:: 1 if it is a proper L-shape move, 0 if otherwise.
 int L_shape (int X1, int X2, int Y1, int Y2)
 {
-    return (off_by_1(X2, X1) == 1 && off_by_2(Y2, Y1) == 1) ? 1 : 0;
+    return (off_by(1, X2, X1) == 1 && off_by(2, Y2, Y1) == 1) ? 1 : 0;
 }
 
 //PURPOSE:: determines if it is a valid knight move
@@ -330,7 +323,7 @@ int valid_Knight_move(int coords [4])
 //RETURNS:: move_true if a valid move, else move_false.
 int valid_King_move(int coords[4])
 {
-    return (off_by_1(coords[3], coords[1]) || off_by_1(coords[2], coords[0])) ? 
+    return (off_by(1, coords[3], coords[1]) || off_by(1, coords[2], coords[0])) ? 
         move_true : move_false;
 }
 
@@ -338,9 +331,9 @@ int valid_King_move(int coords[4])
 //ARGUMENTS:: the starting X and Y positions, and the player variable.
 //
 //RETURNS:: move_true if valid move, else move_false.
-int doesPieceExist(int start_X, int start_Y, Player * P1, int messages)
+int doesPieceExist(int start_X, int start_Y, Player * current, int messages)
 {
-    if(findPiece(P1, start_X, start_Y) == NULL)  
+    if(findPiece(current, start_X, start_Y) == NULL)  
     {
         if(messages)
             printf("Could not find a piece at that location\n");
@@ -356,9 +349,9 @@ int doesPieceExist(int start_X, int start_Y, Player * P1, int messages)
 //ARGUMENTS:: future X pos, future Y pos, and the player variable
 //
 //RETURNS:: move_true if valid move, else move_false.
-int friendlyFire(int next_X, int next_Y, Player * P1, int messages)
+int friendlyFire(int next_X, int next_Y, Player * current, int messages)
 {
-    if(findPiece(P1, next_X, next_Y) != NULL)  
+    if(findPiece(current, next_X, next_Y) != NULL)  
     {
         if(messages)
             printf("That piece already belongs to you\nYou cannot take it\n");
@@ -367,38 +360,38 @@ int friendlyFire(int next_X, int next_Y, Player * P1, int messages)
     return move_true;
 }
 
-int isValidMove(char B[8] [9], int coords [4], 
-    Player * P1, Player * P2, int messages)
+int isValidMove(char board[8] [9], int coords [4], 
+    Player * current, Player * enemy, int messages)
 {
     int status;
     
     //added because of invalid read of size 1, without this, will access invalid
     //piece location at the switch
     if(isEntered(coords[1], coords[3], coords[2], coords[0]) == move_false||
-        doesPieceExist(coords[0], coords[1], P1, messages) == move_false  ||
+        doesPieceExist(coords[0], coords[1], current, messages) == move_false  ||
         checkArrayBounds(coords, messages) == move_false)
     {
         return move_false;
     }
     
-    switch(B[ coords[1] ] [ coords[0] ]) //Y, then X position
+    switch(board[ coords[1] ] [ coords[0] ]) //Y, then X position
     {
-        case 'B': status = valid_Bishop_move(B, coords); break;
+        case 'B': status = valid_Bishop_move(board, coords); break;
         case 'K': status = valid_King_move(coords); break;
         case 'N': status = valid_Knight_move(coords); break;
         
         case 'P': 
         {
-            status = valid_Pawn_move(B, coords, P1, P2); 
+            status = valid_Pawn_move(board, coords, current, enemy); 
             break;
         }
         case 'Q': 
         {
-            status = (valid_Rook_move(B, coords) == 0 ||
-                valid_Bishop_move(B, coords) == 0) ? move_true : move_false; 
+            status = (valid_Rook_move(board, coords) == 0 ||
+                valid_Bishop_move(board, coords) == 0) ? move_true : move_false; 
             break;
         }
-        case 'R': status = valid_Rook_move(B, coords); break;
+        case 'R': status = valid_Rook_move(board, coords); break;
         default: return move_false;
     }
     if(status == move_false && messages)
@@ -408,17 +401,17 @@ int isValidMove(char B[8] [9], int coords [4],
     return status;
 }
 
-int isInDanger(Piece target, char B[8] [9], Player * P2, Player * P1)
+int isInDanger(Piece target, char board[8] [9], Player * enemy, Player * current)
 {
     for(int i = 0; i < NUM_PIECES; i++)
     {
-        Piece * piece = &P2->all[i];
+        Piece * piece = &enemy->all[i];
         if(piece->Y != -1 && //if the Y is -1, so is the X 
-            B[ piece->Y ] [ piece->X ] != 'K')
+            board[ piece->Y ] [ piece->X ] != 'K')
         {
             int coords [4] = {piece->X, piece->Y, target.X, target.Y};
                 
-            if(isValidMove(B, coords, P2, P1, 0) == move_true)
+            if(isValidMove(board, coords, enemy, current, 0) == move_true)
             {
                 return 1;
             }
@@ -432,7 +425,7 @@ int isInDanger(Piece target, char B[8] [9], Player * P2, Player * P1)
 //ARGUMENTS:: current direction, the board, and the two player variables.
 //
 //RETURNS:: move_true if valid, otherwise move_false.
-int isValid_Castling (int * mode, char B[8] [9], Player * P1, Player * P2)
+int isValid_Castling (int * mode, char board[8] [9], Player * current, Player * enemy)
 {
     int rook_X, incr;
     
@@ -451,14 +444,14 @@ int isValid_Castling (int * mode, char B[8] [9], Player * P1, Player * P2)
             break;
         }
     }
-    Piece * King = findKing(P1, B);
+    Piece * King = findKing(current, board);
     Piece * Rook;
-    if( (Rook = findPiece(P1, rook_X, King->Y)) == NULL)
+    if( (Rook = findPiece(current, rook_X, King->Y)) == NULL)
     {
         return move_false;
     }
     
-    //if rook of king moved previously
+    //if the rook or king moved previously
     if(Rook->moved || King->moved)
     {
         return move_false;
@@ -466,14 +459,14 @@ int isValid_Castling (int * mode, char B[8] [9], Player * P1, Player * P2)
     
     for(int i = King->X; i != rook_X; i = i + incr)
     {
-        if(B[King->Y] [i] != '_' && i != King->X)
+        if(board[King->Y] [i] != '_' && i != King->X)
         {
             return move_false;
         }
         
         Piece targetSQ = {i, King->Y, 0};
         
-        if(isInDanger(targetSQ, B, P2, P1) == 1)
+        if(isInDanger(targetSQ, board, enemy, current) == 1)
             return move_false;
     }
     return move_true;
@@ -512,11 +505,11 @@ void input(int * Y1, int * Y2, int * X1, int * X2)
 }
 
 int validateInput (int * Y1, int * Y2, int * X1, int * X2, 
-    char B[8] [9], Player * P1, Player * P2, int messages)
+    char board[8] [9], Player * current, Player * enemy, int messages)
 {
     if(*X1 == 'L' || *X1 == 'R')
     {
-        return isValid_Castling(X1, B, P1, P2);
+        return isValid_Castling(X1, board, current, enemy);
     }
     
     *X1 = convertToInt(*X1);
@@ -524,6 +517,6 @@ int validateInput (int * Y1, int * Y2, int * X1, int * X2,
     
     int coords [4] = { *X1, --(*Y1), *X2, --(*Y2) };
     
-    return friendlyFire(coords[2], coords[3], P1, messages) + 
-        isValidMove(B, coords, P1, P2, messages);
+    return friendlyFire(coords[2], coords[3], current, messages) + 
+        isValidMove(board, coords, current, enemy, messages);
 }
