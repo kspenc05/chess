@@ -45,7 +45,7 @@ void printThisChar(char print, int times)
 void printLetters()
 {
     printThisChar(' ', 8);
-    printf(Yellow "A   B   C   D   E   F   G   H   I    \n");
+    printf(Yellow "A   B   C   D   E   F   G   H        \n");
 }
 
 //PURPOSE:: prints out all B locations and number co-ordinates for user

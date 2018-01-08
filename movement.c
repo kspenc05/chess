@@ -122,9 +122,9 @@ int En_Passente(char board[8] [9], int coords[4], int player_num,
     
     //checks if the last move one where there is a pawn and that the opposing 
     //player moved that pawn by 2 in either direction
-    if( off_by(2, pawn.Y, enemy->lastMove[0].Y) == 1 &&
-        off_by(1, coords[0] + 1, pawn.X) == 1     &&
-        board[ pawn.Y ] [ pawn.X ] == 'P'          &&
+    if( off_by(2, pawn.Y, enemy->lastMove[0].Y) &&
+        off_by(1, coords[0] + 1, pawn.X)        &&
+        board[ pawn.Y ] [ pawn.X ] == 'P'       &&
         coords[1] == pawn.Y)
     {
         if( ((coords[3] - 1 == pawn.Y && player_num == 1) ||
@@ -302,7 +302,7 @@ int valid_Bishop_move(char board[8] [9], int coords [4])
 //RETURNS:: 1 if it is a proper L-shape move, 0 if otherwise.
 int L_shape (int X1, int X2, int Y1, int Y2)
 {
-    return (off_by(1, X2, X1) == 1 && off_by(2, Y2, Y1) == 1) ? 1 : 0;
+    return (off_by(1, X2, X1) && off_by(2, Y2, Y1)) ? 1 : 0;
 }
 
 //PURPOSE:: determines if it is a valid knight move
@@ -333,14 +333,12 @@ int valid_King_move(int coords[4])
 //RETURNS:: move_true if valid move, else move_false.
 int doesPieceExist(int start_X, int start_Y, Player * current, int messages)
 {
-    if(findPiece(current, start_X, start_Y) == NULL)  
-    {
-        if(messages)
-            printf("Could not find a piece at that location\n");
-        return move_false;
-    }
+    if(findPiece(current, start_X, start_Y))  
+        return move_true;
     
-    return move_true;
+    if(messages)
+        printf("Could not find a piece at that location\n");
+    return move_false;
 }
 
 //PURPOSE:: checks if the future position belongs to the current player
@@ -351,7 +349,7 @@ int doesPieceExist(int start_X, int start_Y, Player * current, int messages)
 //RETURNS:: move_true if valid move, else move_false.
 int friendlyFire(int next_X, int next_Y, Player * current, int messages)
 {
-    if(findPiece(current, next_X, next_Y) != NULL)  
+    if(findPiece(current, next_X, next_Y))  
     {
         if(messages)
             printf("That piece already belongs to you\nYou cannot take it\n");
@@ -367,7 +365,7 @@ int isValidMove(char board[8] [9], int coords [4],
     
     //added because of invalid read of size 1, without this, will access invalid
     //piece location at the switch
-    if(isEntered(coords[1], coords[3], coords[2], coords[0]) == move_false||
+    if(isEntered(coords[1], coords[3], coords[2], coords[0]) == move_false ||
         doesPieceExist(coords[0], coords[1], current, messages) == move_false  ||
         checkArrayBounds(coords, messages) == move_false)
     {
@@ -444,15 +442,11 @@ int isValid_Castling (int * mode, char board[8] [9], Player * current, Player * 
             break;
         }
     }
-    Piece * King = findKing(current, board);
-    Piece * Rook;
-    if( (Rook = findPiece(current, rook_X, King->Y)) == NULL)
-    {
-        return move_false;
-    }
     
-    //if the rook or king moved previously
-    if(Rook->moved || King->moved)
+    Piece * King = findKing(current, board);
+    Piece * Rook = findPiece(current, rook_X, King->Y);
+    
+    if(Rook == NULL || Rook->moved || King->moved)
     {
         return move_false;
     }
