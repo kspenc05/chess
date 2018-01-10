@@ -63,50 +63,14 @@ int checkArrayBounds(int coords[4], int messages)
 
 //PURPOSE:: checks if a two-move pawn move is legal or not
 //
-//ARGUMENTS:: the player variable, and the int coordinate array 
+//ARGUMENTS:: the player variable, the int coordinate array and the type of piece
+// occupying the square the pawn is moving onto.
 int valid_2Square_move(Player * current, int coords [4], char type)
 {
     Piece * piece = findPiece(current, coords[0], coords[1]);
         
     return (piece != NULL && piece->moved == 0 && type == '_') ?
         move_true : move_false;
-}
-
-//PURPOSE:: checks it the pawn can be promoted or not, after a move 
-//has been shown to be legal
-//
-//ARGUMENTS:: the player number, the int coordinate array, and the board
-void Promotion(int player_num, int coords [4], char * promotedUnit)
-{
-    if((player_num == 1 && coords[3] == 7) || 
-        (player_num == 2 && coords[3] == 0))
-    {
-        char string [10];
-        int match;
-        
-        printf("Your pawn has advanced to the end of the board\n"
-            "What would you like to promote it to?\n\n"
-            "Options: ['Q', 'R', 'B', 'N']\n\n"
-        );
-        
-        do
-        {
-            fgets(string, 10, stdin); //in case user types more by accident
-            string[strlen(string) - 1] = '\0';
-        
-            string[0] = toupper(string[0]);
-            
-            match = -1;
-            
-            switch(string[0])
-            {
-                case 'Q': case 'B': case 'R': case 'N': match = 1; break;
-                default: printf("invalid promotion\n\n"); break;
-            }
-        } while(match != 1);
-        
-        *promotedUnit = string[0];
-    }
 }
 
 //PURPOSE:: checks if En Passente can be performed or not by current player
@@ -195,12 +159,6 @@ int valid_Pawn_move(char board[8] [9], int coords[4], Player * current, Player *
         {
             status = move_true;
         }
-    }
-    
-    //if the move was valid, does the pawn need to be promoted?
-    if(status == move_true)
-    {
-        Promotion(current->num, coords, &board[ coords[1]] [ coords[0]] );
     }
     return status;
 }

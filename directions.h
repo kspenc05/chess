@@ -29,7 +29,7 @@ char setDanger(int * mode);
 //
 //ARGUMENTS:: the current direction, where the King is located, the board,
 //and the current player direction.
-void findCheckDirns(int mode, Piece King, char board [8] [9], Player * player);
+void findCheckDirns(int mode, Piece King, char board[8] [9], Player * current);
 
 //PURPOSE:: gets the first direction that is in danger, as marked in the int 
 //array by a 1 instead of 0

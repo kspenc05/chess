@@ -115,13 +115,4 @@ void computer_move(int * Y1, int * Y2, int * X1, int * X2,
     (*Y2)++;
     *X1 = convertToChar(*X1);
     *X2 = convertToChar(*X2);
-    
-    
-    const clock_t start = clock();
-
-    clock_t current_time;
-    do{
-        current_time = clock();
-    }while((double)(current_time-start)/CLOCKS_PER_SEC < 1);
-    
 }
