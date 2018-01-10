@@ -153,27 +153,15 @@ void Promotion(int player_num, int Ypos, char * pawn, int get_input)
 void Move(char board[8] [9], Player * current, Player * enemy, int get_input)
 {
     int Y1, Y2, X1, X2, status;
-    char buffer [2];
     do
     {
         //until a possible move is entered
-        if(get_input == 1)
+        do
         {
-            do
-            {
-                input(&Y1, &Y2, &X1, &X2);
-            }
-            while(validateInput(&Y1, &Y2, &X1, &X2,board, current, enemy, 0));
-        }
-        else
-        {
-            do
-            {
+            (get_input == 1) ? input(&Y1, &Y2, &X1, &X2) :
                 computer_move(&Y1, &Y2, &X1, &X2,board, current);
-               // fgets(buffer, 2, stdin);
-            }
-            while(validateInput(&Y1, &Y2, &X1, &X2,board, current, enemy, 0));
-        }
+           
+        }while(validateInput(&Y1, &Y2, &X1, &X2,board, current, enemy, 0));
         
         if(X1 == 'L' || X1 == 'R') 
         {
